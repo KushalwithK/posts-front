@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const BASE_URL = 'https://localhost:8000/'
+const BASE_URL = 'http://localhost:8000/'
 
 // POST ENDPOINTS
 const POST_ENDPOINT = 'posts/'
@@ -11,4 +11,8 @@ const API_SINGLETON = axios.create({
     baseURL: BASE_URL,
 })
 
-export { POST_ENDPOINT, POST_URL, MEDIA_URL, API_SINGLETON }
+const CHECK_LOGIN = () => {
+    return true;
+}
+
+export { POST_ENDPOINT, POST_URL, MEDIA_URL, API_SINGLETON, CHECK_LOGIN }

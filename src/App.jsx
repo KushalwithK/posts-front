@@ -2,6 +2,7 @@ import React from 'react';
 import Posts from './components/Posts'
 import CreatePost from './components/CreatePost'
 import UpdatePost from './components/UpdatePost'
+import Login from './components/Login'
 import {
   Outlet,
   Route,
@@ -26,6 +27,7 @@ const App = () => {
           <Route path='/posts/create' element={<CreatePost />} />
           <Route path='/posts/update/:postId' element={<UpdatePost />} />
         </Route>
+        <Route path='/login' element={<Login/>}/>
       </Routes>
     </Main>
   )
