@@ -5,11 +5,23 @@ import { useNavigate } from 'react-router-dom';
 
 const CreatePost = () => {
 
+    const [errors, setErrors] = useState({
+        title: false,
+        description: false
+    })
+    const [data, setData] = useState({
+        'title': "",
+        'description': ""
+    })
     const navigate = useNavigate();
 
     const handleCreatePost = (event) => {
         event.preventDefault()
-        if (event.target[0] != null || "" && event.target[1] != null || "" && event.target[2] != null) {
+        if (data.title == "") setErrors({ ...errors, title: true })
+        if (data.description == "") setErrors({ ...errors, description: true })
+        if (data.title != "") setErrors({ ...errors, title: false })
+        if (data.description != "") setErrors({ ...errors, description: false })
+        if (event.target[0].value != "" && event.target[1].value != "") {
             var formData = new FormData(event.target);
             API_SINGLETON.post(POST_ENDPOINT, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
@@ -33,14 +45,17 @@ const CreatePost = () => {
                         </label>
                         <div className="mt-2">
                             <input
-                                required
                                 type="text"
                                 name="title"
                                 id="postTitle"
                                 autoComplete="given-name"
                                 placeholder='ex. My First Blog Post'
                                 className="block w-full rounded-md border-0 p-3 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                onChange={(event) => {
+                                    setData({ ...data, title: event.currentTarget.value })
+                                }}
                             />
+                            {errors.title && <span className='mt-1 block text-m font-regular leading-6 text-purple-800'>Title is required!</span>}
                         </div>
                     </div>
                 </div>
@@ -51,13 +66,16 @@ const CreatePost = () => {
                         </label>
                         <div className="mt-2">
                             <textarea
-                                required
                                 name="description"
                                 id="postDescription"
                                 rows={3}
                                 className="block p-3 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 placeholder={'ex. Protein is very essential for human body...'}
+                                onChange={(event) => {
+                                    setData({ ...data, description: event.currentTarget.value })
+                                }}
                             />
+                            {errors.description && <span className='mt-1 block text-m font-regular leading-6 text-purple-800'>Description is required!</span>}
                         </div>
                     </div>
                 </div>
@@ -76,7 +94,7 @@ const CreatePost = () => {
                                         className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
                                     >
                                         <span>Upload a file</span>
-                                        <input required id="file-upload" name="image" type="file" className="sr-only" />
+                                        <input id="file-upload" name="image" type="file" className="sr-only" />
                                     </label>
                                     <p className="pl-1">or drag and drop</p>
                                 </div>

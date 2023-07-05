@@ -56,7 +56,8 @@ const SectionsList = ({ items }) => (
 
 const Sidebar = () => {
     const lessons = {
-        rustLessons: [{ name: "See all Posts", href: "/" }, { name: "Create Post", href: "/posts/create" }],
+        postsSection: [{ name: "See all Posts", href: "/" }, { name: "Create Post", href: "/posts/create" }],
+        todoListSection: [{ name: "See all TODO's", href: "/todos" }, { name: "Create a TODO", href: "/todo/create" }],
     }
 
     return (
@@ -73,8 +74,12 @@ const Sidebar = () => {
                 <div className='text-[0.9rem] space-y-6'>
                     <>
                         <div>
-                            <Title>Rust Basics</Title>
-                            <SectionsList items={lessons.rustLessons} />
+                            <Title>Posts</Title>
+                            <SectionsList items={lessons.postsSection} />
+                        </div>
+                        <div>
+                            <Title>Posts</Title>
+                            <SectionsList items={lessons.todoListSection} />
                         </div>
                     </>
                 </div>
