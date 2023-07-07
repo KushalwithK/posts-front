@@ -17,7 +17,6 @@ const Layout = () => {
     </>
   );
 };
-
 const App = () => {
   return (
     <Main>
@@ -40,6 +39,7 @@ const App = () => {
 
 const Main = styled.div`
   display: flex;
+  height: 100vh;
 `;
 
 export default App;

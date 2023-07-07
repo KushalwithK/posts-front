@@ -9,10 +9,14 @@ const UpdatePost = () => {
   const updatedData = useState({});
   const { postId } = useParams();
 
-  useEffect(() => {
-    API_SINGLETON.get(POST_ENDPOINT + postId).then((result) => {
+  const getPostUsingId = (id) => {
+    API_SINGLETON.get(POST_ENDPOINT + id).then((result) => {
       setPost(result.data);
     });
+  };
+
+  useEffect(() => {
+    getPostUsingId(postId);
   }, []);
 
   const handleUpdatePost = (event) => {
