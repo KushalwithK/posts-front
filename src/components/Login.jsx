@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { API_SINGLETON } from "../extras/Constant";
 import { useNavigate } from "react-router-dom";
+import { data } from "autoprefixer";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -12,6 +13,26 @@ const Login = () => {
     password: null,
   });
   const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    if (localStorage.getItem("username") && localStorage.getItem("password")) {
+      const formData = new FormData();
+      console.log(
+        localStorage.getItem("username").toString(),
+        localStorage.getItem("password").toString()
+      );
+      formData.append("username", localStorage.getItem("username"));
+      formData.append("password", localStorage.getItem("password"));
+      API_SINGLETON.post("/validateUser/", formData).then((response) => {
+        const data = response.data;
+        console.log(data);
+        if (data.status == "USER IS VALID") {
+          navigate("/");
+        }
+      });
+    }
+  }, []);
+
   const handleLogin = (event) => {
     event.preventDefault();
     if (loginData.password == "" || loginData.username == "")
@@ -33,6 +54,8 @@ const Login = () => {
         .then((response) => {
           if (response.data.status == "USER IS VALID") {
             console.log("User is valid!");
+            localStorage.setItem("username", loginData.username);
+            localStorage.setItem("password", loginData.password);
             navigate("/");
           }
         })
@@ -51,11 +74,11 @@ const Login = () => {
     <main className="w-full h-screen flex flex-col items-center justify-center px-4">
       <div className="max-w-sm w-full text-gray-600">
         <div className="text-center">
-          <img
+          {/* <img
             src="https://floatui.com/logo.svg"
             width={150}
             className="mx-auto"
-          />
+          /> */}
           <div className="mt-5 space-y-2">
             <h3 className="text-gray-800 text-2xl font-bold sm:text-3xl">
               Log in to your account
@@ -77,7 +100,7 @@ const Login = () => {
                 errors.username != null ? "border-red-500" : ""
               } focus:border-indigo-600 shadow-sm rounded-lg`}
             />
-            {loginData.username == "" && (
+            {(loginData.username == "" || errors.username) && (
               <p className="text-red-500 mt-1">{errors.username}</p>
             )}
           </div>
@@ -94,7 +117,7 @@ const Login = () => {
                 errors.password != null ? "border-red-500" : ""
               } focus:border-indigo-600 shadow-sm rounded-lg`}
             />
-            {loginData.password == "" && (
+            {(loginData.password == "" || errors.password) && (
               <p className="text-red-500 mt-1">{errors.password}</p>
             )}
           </div>

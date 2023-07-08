@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { POST_ENDPOINT, API_SINGLETON, MEDIA_URL } from "../extras/Constant";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CREATE_POST_ROUTE, UPDATE_POST_ROUTE } from "../extras/Routes";
 import { BsFillImageFill } from "react-icons/bs";
 
@@ -18,6 +18,16 @@ const UpdatePost = () => {
   useEffect(() => {
     getPostUsingId(postId);
   }, []);
+
+  const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    if (
+      !(localStorage.getItem("username") && localStorage.getItem("password"))
+    ) {
+      navigate("/login");
+    }
+  });
 
   const handleUpdatePost = (event) => {
     event.preventDefault();

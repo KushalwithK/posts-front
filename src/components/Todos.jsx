@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Table } from "flowbite-react";
 import { CREATE_POST_ROUTE, UPDATE_POST_ROUTE } from "../extras/Routes";
 import { Label, TextInput } from "flowbite-react";
@@ -6,7 +6,7 @@ import { RxLetterCaseCapitalize } from "react-icons/rx";
 import { API_SINGLETON } from "../extras/Constant";
 import { Dropdown } from "flowbite-react";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Todos = () => {
   const [todoDate, setTodoDate] = useState({
@@ -20,6 +20,16 @@ const Todos = () => {
   const contentRef = useRef();
 
   const [todos, setTodos] = useState([]);
+
+  const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    if (
+      !(localStorage.getItem("username") && localStorage.getItem("password"))
+    ) {
+      navigate("/login");
+    }
+  });
 
   const handleDateChange = (event) => {
     API_SINGLETON.get("/todos/sort/", {
@@ -72,6 +82,15 @@ const Todos = () => {
 
   const handleKeyDown = (event) => {
     if (event.key === "Enter") handleTodoAdd();
+  };
+
+  const getRemainingDays = (created_at, due_at) => {
+    const created = new Date(created_at.toString());
+    const dueAt = new Date(due_at.toString());
+
+    // const DIF_IN_DAYS = dueDate.getDate - created.getDate;
+
+    return created.getUTCMonth();
   };
 
   useEffect(() => {
@@ -150,8 +169,8 @@ const Todos = () => {
             <Table.HeadCell>Id</Table.HeadCell>
             <Table.HeadCell>Title</Table.HeadCell>
             <Table.HeadCell>Created by</Table.HeadCell>
-            <Table.HeadCell>Created at</Table.HeadCell>
             <Table.HeadCell>Due at</Table.HeadCell>
+            <Table.HeadCell>Days remaining</Table.HeadCell>
             <Table.HeadCell>Active</Table.HeadCell>
             <Table.HeadCell>Actions</Table.HeadCell>
             <Table.HeadCell>
@@ -172,8 +191,10 @@ const Todos = () => {
                       : todo.title}
                   </Table.Cell>
                   <Table.Cell>{todo.created_by}</Table.Cell>
-                  <Table.Cell>{todo.created_at}</Table.Cell>
                   <Table.Cell>{todo.due_at}</Table.Cell>
+                  <Table.Cell>
+                    {getRemainingDays(todo.created_at, todo.due_at)}
+                  </Table.Cell>
                   <Table.Cell>{todo.active ? "Active" : "Inactive"}</Table.Cell>
                   <Table.Cell>
                     <Dropdown label="Action" color="gray">

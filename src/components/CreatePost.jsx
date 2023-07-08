@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { POST_ENDPOINT, API_SINGLETON } from "../extras/Constant";
 import { BsFillImageFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +16,14 @@ const CreatePost = () => {
     description: "",
   });
   const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    if (
+      !(localStorage.getItem("username") && localStorage.getItem("password"))
+    ) {
+      navigate("/login");
+    }
+  });
 
   const handleCreatePost = (event) => {
     event.preventDefault();

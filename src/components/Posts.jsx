@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { POST_ENDPOINT, MEDIA_URL, API_SINGLETON } from "../extras/Constant";
 import { CREATE_POST_ROUTE, UPDATE_POST_ROUTE } from "../extras/Routes";
@@ -17,6 +17,16 @@ const Posts = () => {
   useEffect(() => {
     getAllPosts();
   }, []);
+
+  const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    if (
+      !(localStorage.getItem("username") && localStorage.getItem("password"))
+    ) {
+      navigate("/login");
+    }
+  });
 
   const handlePostDelete = (id) => {
     API_SINGLETON.delete(POST_ENDPOINT + id)
