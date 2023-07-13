@@ -1,12 +1,15 @@
-import React, { useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { POST_ENDPOINT, API_SINGLETON } from "../extras/Constant";
 import { BsFillImageFill } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Alert } from "flowbite-react";
+import { AppContext } from "../AppContext";
 
 const CreatePost = () => {
+  const { validateUser } = useContext(AppContext);
+
   const [errors, setErrors] = useState({
     title: false,
     description: false,
@@ -17,12 +20,8 @@ const CreatePost = () => {
   });
   const navigate = useNavigate();
 
-  useLayoutEffect(() => {
-    if (
-      !(localStorage.getItem("username") && localStorage.getItem("password"))
-    ) {
-      navigate("/login");
-    }
+  useEffect(() => {
+    validateUser();
   });
 
   const handleCreatePost = (event) => {

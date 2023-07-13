@@ -33,31 +33,41 @@ const Title = ({ children }) => (
 );
 
 // Sections List
-const SectionsList = ({ items }) => (
-  <div className="text-gray-600 px-4 md:px-8">
-    <ul>
-      {items?.map((item, idx) => (
-        <li key={idx}>
-          <NavLink
-            href={item?.href}
-            active="text-gray-900 border-indigo-600"
-            className="block w-full py-2 px-4 border-l hover:border-indigo-600 hover:text-gray-900 duration-150"
-          >
-            {item?.name}
-          </NavLink>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+const SectionsList = ({ items }) => {
+  // if (items.accessibleBy === "Admin") {
+  //   console.log(activeUser.is_superuser);
+  //   // if (!activeUser.is_superuser) {
+  //   //   return <div>CANNOT ACCESS THIS</div>;
+  //   // }
+  // }
+  return (
+    <div className="text-gray-600 px-4 md:px-8">
+      <ul>
+        {items?.map((item, idx) => (
+          <li key={idx}>
+            <NavLink
+              href={item?.href}
+              active="text-gray-900 border-indigo-600"
+              className="block w-full py-2 px-4 border-l hover:border-indigo-600 hover:text-gray-900 duration-150"
+            >
+              {item?.name}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
 
 const Sidebar = () => {
   const lessons = {
     postsSection: [
-      { name: "See all Posts", href: "/" },
-      { name: "Create Post", href: "/posts/create" },
+      { name: "See all Posts", href: "/", accessibleBy: "Staff" },
+      { name: "Create Post", href: "/posts/create", accessibleBy: "Staff" },
     ],
-    todoListSection: [{ name: "See all TODO's", href: "/todos/" }],
+    todoListSection: [
+      { name: "See all TODO's", href: "/todos/", accessibleBy: "Admin" },
+    ],
   };
 
   return (

@@ -1,22 +1,16 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_SINGLETON } from "../extras/Constant";
 import { FileInput, Label } from "flowbite-react";
+import { AppContext } from "../AppContext";
 
 const UpdateTodo = () => {
+  const { validateUser } = useContext(AppContext);
   const [todo, setTodo] = useState({});
   const [updatedData, setUpdatedData] = useState({});
   const { todoId } = useParams();
 
   const navigate = useNavigate();
-
-  useLayoutEffect(() => {
-    if (
-      !(localStorage.getItem("username") && localStorage.getItem("password"))
-    ) {
-      navigate("/login");
-    }
-  });
 
   const getTodoUsingId = (id) => {
     API_SINGLETON.get("/todos/" + id).then((result) => {
@@ -31,6 +25,7 @@ const UpdateTodo = () => {
   };
 
   useEffect(() => {
+    validateUser();
     getTodoUsingId(todoId);
   }, []);
 

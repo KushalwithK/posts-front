@@ -1,7 +1,8 @@
-import { useLayoutEffect, useState } from "react";
+import { useContext, useLayoutEffect, useState } from "react";
 import { API_SINGLETON } from "../extras/Constant";
 import { useNavigate } from "react-router-dom";
 import { data } from "autoprefixer";
+import { AppContext } from "../AppContext";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -14,15 +15,13 @@ const Login = () => {
   });
   const navigate = useNavigate();
 
+  const { user, setUser } = useContext(AppContext);
+
   useLayoutEffect(() => {
-    if (localStorage.getItem("username") && localStorage.getItem("password")) {
+    if (user) {
       const formData = new FormData();
-      console.log(
-        localStorage.getItem("username").toString(),
-        localStorage.getItem("password").toString()
-      );
-      formData.append("username", localStorage.getItem("username"));
-      formData.append("password", localStorage.getItem("password"));
+      formData.append("username", user.username);
+      formData.append("password", user.password);
       API_SINGLETON.post("/validateUser/", formData).then((response) => {
         const data = response.data;
         console.log(data);
@@ -33,7 +32,7 @@ const Login = () => {
     }
   }, []);
 
-  const handleLogin = (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     if (loginData.password == "" || loginData.username == "")
       setErrors({
@@ -54,9 +53,16 @@ const Login = () => {
         .then((response) => {
           if (response.data.status == "USER IS VALID") {
             console.log("User is valid!");
-            localStorage.setItem("username", loginData.username);
-            localStorage.setItem("password", loginData.password);
-            navigate("/");
+            API_SINGLETON.post("/getUser/", formData).then(async (response) => {
+              if (response.data.status == "USER IS AUTHENTICATED") {
+                await setUser({
+                  ...response.data.user,
+                  rawPassword: loginData.password,
+                });
+                navigate("/");
+                console.log(response.data.user);
+              }
+            });
           }
         })
         .catch((error) => {
