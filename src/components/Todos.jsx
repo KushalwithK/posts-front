@@ -104,6 +104,8 @@ const Todos = () => {
       const formData = new FormData();
       formData.append("title", todoTitle.title);
       formData.append("created_by", localStorage.getItem("username"));
+      formData.append("created_for", localStorage.getItem("username"));
+      formData.append("active", "PENDING");
       API_SINGLETON.post("/todos/", formData).then((response) => {
         console.log(response.data);
         getTodos();
