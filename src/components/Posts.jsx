@@ -6,7 +6,7 @@ import { CREATE_POST_ROUTE, UPDATE_POST_ROUTE } from "../extras/Routes";
 import { AppContext } from "../AppContext";
 
 const Posts = () => {
-  const { user, setUser, validateUser, cookies } = useContext(AppContext);
+  const { user, setUser, cookies } = useContext(AppContext);
 
   const [posts, setPosts] = useState([]);
 
@@ -18,7 +18,6 @@ const Posts = () => {
   };
 
   useEffect(() => {
-    validateUser();
     getAllPosts();
   }, []);
 

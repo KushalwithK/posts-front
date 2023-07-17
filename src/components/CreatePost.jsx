@@ -8,7 +8,7 @@ import { Alert } from "flowbite-react";
 import { AppContext } from "../AppContext";
 
 const CreatePost = () => {
-  const { validateUser } = useContext(AppContext);
+  // const { validateUser } = useContext(AppContext);
 
   const [errors, setErrors] = useState({
     title: false,
@@ -20,9 +20,7 @@ const CreatePost = () => {
   });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    validateUser();
-  });
+  useEffect(() => {});
 
   const handleCreatePost = (event) => {
     event.preventDefault();

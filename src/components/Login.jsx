@@ -3,6 +3,7 @@ import { API_SINGLETON } from "../extras/Constant";
 import { useNavigate } from "react-router-dom";
 import { data } from "autoprefixer";
 import { AppContext } from "../AppContext";
+import { useCookies } from "react-cookie";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -15,22 +16,9 @@ const Login = () => {
   });
   const navigate = useNavigate();
 
-  const { user, setUser } = useContext(AppContext);
+  // const { user, setUser } = useContext(AppContext);
 
-  useLayoutEffect(() => {
-    if (user) {
-      const formData = new FormData();
-      formData.append("username", user.username);
-      formData.append("password", user.password);
-      API_SINGLETON.post("/validateUser/", formData).then((response) => {
-        const data = response.data;
-        console.log(data);
-        if (data.status == "USER IS VALID") {
-          navigate("/");
-        }
-      });
-    }
-  }, []);
+  const [cookies, setCookie, getCookie] = useCookies("jwt");
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -50,19 +38,12 @@ const Login = () => {
       API_SINGLETON.post("/validateUser/", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
-        .then((response) => {
+        .then(async (response) => {
           if (response.data.status == "USER IS VALID") {
             console.log("User is valid!");
-            API_SINGLETON.post("/getUser/", formData).then(async (response) => {
-              if (response.data.status == "USER IS AUTHENTICATED") {
-                await setUser({
-                  ...response.data.user,
-                  rawPassword: loginData.password,
-                });
-                navigate("/");
-                console.log(response.data.user);
-              }
-            });
+            localStorage.setItem("username", loginData.username);
+            localStorage.setItem("password", loginData.password);
+            navigate("/");
           }
         })
         .catch((error) => {

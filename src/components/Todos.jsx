@@ -14,9 +14,11 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../AppContext";
 
 const Todos = () => {
-  const { user, validateUser } = useContext(AppContext);
+  const { user } = useContext(AppContext);
 
   const [users, setUsers] = useState([]);
+
+  const [date, setDate] = useState("");
 
   const [selectedUser, setSelectedUser] = useState("All");
 
@@ -43,25 +45,27 @@ const Todos = () => {
   const [todos, setTodos] = useState([]);
 
   const getUsers = () => {
-    API_SINGLETON.get("/users/").then((response) => {
-      const users = response.data;
-      setUsers(users);
-    });
+    API_SINGLETON.get("/users", {
+      username: localStorage.getItem("username"),
+      password: localStorage.getItem("password"),
+    })
+      .then((response) => {
+        const users = response.data;
+        setUsers(users);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
-  const getTodos = (username = selectedUser) => {
-    API_SINGLETON.get("/todos", { params: { username: username } }).then(
-      (response) => {
-        const todos = response.data;
-        setTodos(todos);
-        dateRef.current.value = "";
-      }
-    );
-  };
-
-  const getTodosOfUser = () => {
+  const getTodos = (assigned = "All", date = "") => {
     API_SINGLETON.get("/todos", {
-      params: { assignedTo: user?.username },
+      params: {
+        username: localStorage.getItem("username"),
+        password: localStorage.getItem("password"),
+        assigned,
+        date,
+      },
     }).then((response) => {
       const todos = response.data;
       setTodos(todos);
@@ -70,22 +74,13 @@ const Todos = () => {
   };
 
   useEffect(() => {
-    validateUser();
     if (user?.is_superuser) getUsers();
-    user?.is_superuser ? getTodos() : getTodosOfUser();
+    getTodos();
   }, []);
 
   const handleDateChange = (event) => {
-    API_SINGLETON.get("/todos/sort/", {
-      params: { date: event.currentTarget.value },
-    })
-      .then((response) => {
-        console.log(response.data);
-        setTodos(response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    getTodos("All", event.currentTarget.value);
+    setDate(event.currentTarget.value);
   };
 
   const handleTodoDelete = (id) => {
@@ -108,7 +103,7 @@ const Todos = () => {
     else if (todoTitle.title != "") {
       const formData = new FormData();
       formData.append("title", todoTitle.title);
-      formData.append("created_by", user?.username);
+      formData.append("created_by", localStorage.getItem("username"));
       API_SINGLETON.post("/todos/", formData).then((response) => {
         console.log(response.data);
         getTodos();
@@ -185,6 +180,7 @@ const Todos = () => {
                 name="todo_date"
                 onChange={handleDateChange}
                 onReset={handleDateReset}
+                value={date}
                 ref={dateRef}
                 className="block  mt-2 w-full placeholder-gray-400/70 dark:placeholder-gray-500 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
               />

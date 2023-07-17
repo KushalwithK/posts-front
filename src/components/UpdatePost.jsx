@@ -6,7 +6,7 @@ import { BsFillImageFill } from "react-icons/bs";
 import { AppContext } from "../AppContext";
 
 const UpdatePost = () => {
-  const { user, validateUser } = useContext(AppContext);
+  const { user } = useContext(AppContext);
   const [post, setPost] = useState({});
   const updatedData = useState({});
   const { postId } = useParams();
@@ -18,7 +18,6 @@ const UpdatePost = () => {
   };
 
   useEffect(() => {
-    validateUser();
     getPostUsingId(postId);
   }, []);
 

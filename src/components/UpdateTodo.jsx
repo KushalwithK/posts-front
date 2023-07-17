@@ -5,7 +5,7 @@ import { FileInput, Label } from "flowbite-react";
 import { AppContext } from "../AppContext";
 
 const UpdateTodo = () => {
-  const { validateUser } = useContext(AppContext);
+  // const { validateUser } = useContext(AppContext);
   const [todo, setTodo] = useState({});
   const [updatedData, setUpdatedData] = useState({});
   const { todoId } = useParams();
@@ -25,7 +25,6 @@ const UpdateTodo = () => {
   };
 
   useEffect(() => {
-    validateUser();
     getTodoUsingId(todoId);
   }, []);
 
