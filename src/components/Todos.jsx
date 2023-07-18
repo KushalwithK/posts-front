@@ -14,9 +14,7 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../AppContext";
 
 const Todos = () => {
-  const { user } = useContext(AppContext);
-
-  const [users, setUsers] = useState([]);
+  const { user, users } = useContext(AppContext);
 
   const [date, setDate] = useState("");
 
@@ -44,20 +42,6 @@ const Todos = () => {
 
   const [todos, setTodos] = useState([]);
 
-  const getUsers = () => {
-    API_SINGLETON.get("/users", {
-      username: localStorage.getItem("username"),
-      password: localStorage.getItem("password"),
-    })
-      .then((response) => {
-        const users = response.data;
-        setUsers(users);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   const getTodos = (assigned = "All", date = "") => {
     API_SINGLETON.get("/todos", {
       params: {
@@ -74,12 +58,11 @@ const Todos = () => {
   };
 
   useEffect(() => {
-    if (user?.is_superuser) getUsers();
     getTodos();
   }, []);
 
   const handleDateChange = (event) => {
-    getTodos("All", event.currentTarget.value);
+    getTodos(selectedUser, event.currentTarget.value);
     setDate(event.currentTarget.value);
   };
 
@@ -105,7 +88,6 @@ const Todos = () => {
       formData.append("title", todoTitle.title);
       formData.append("created_by", localStorage.getItem("username"));
       formData.append("created_for", localStorage.getItem("username"));
-      formData.append("active", "PENDING");
       API_SINGLETON.post("/todos/", formData).then((response) => {
         console.log(response.data);
         getTodos();
@@ -120,12 +102,11 @@ const Todos = () => {
   };
 
   const getRemainingDays = (created_at, due_at) => {
-    const created = new Date(created_at.toString());
-    const dueAt = new Date(due_at?.toString());
+    const diff = Math.floor((Date.parse(due_at) - Date.parse(created_at)) / 86400000);
 
     // const DIF_IN_DAYS = dueDate.getDate - created.getDate;
 
-    return created.getUTCMonth();
+    return diff
   };
 
   return (
@@ -145,7 +126,7 @@ const Todos = () => {
                   <Dropdown.Item
                     onClick={() => {
                       setSelectedUser("All");
-                      getTodos("All");
+                      getTodos("All", date);
                     }}
                   >
                     All
@@ -157,7 +138,7 @@ const Todos = () => {
                         key={key}
                         onClick={async () => {
                           setSelectedUser(user.username);
-                          getTodos(user.username);
+                          getTodos(user.username, date);
                         }}
                       >
                         {user.username}
@@ -200,13 +181,11 @@ const Todos = () => {
             id="todoContentInput"
             onKeyDown={handleKeyDown}
             ref={contentRef}
-            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${
-              todoTitle.title == "" ? "border-red-500" : "border-gray-300"
-            } rounded-lg bg-gray-50 ${
-              todoTitle.title == ""
+            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${todoTitle.title == "" ? "border-red-500" : "border-gray-300"
+              } rounded-lg bg-gray-50 ${todoTitle.title == ""
                 ? "focus:ring-red-500 focus:border-red-500"
                 : "focus:ring-blue-500 focus:border-blue-500"
-            }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+              }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
             placeholder="Enter the TODO's title..."
             onChange={(event) => {
               setTodoTitle({
@@ -230,7 +209,7 @@ const Todos = () => {
         )}
       </div>
       <div className="mt-8 shadow-sm border rounded-lg overflow-x-auto">
-        <div className="max-w-screen-xl mx-auto">
+        <div className=" mx-auto">
           <div className="text-sm overflow-x-auto">
             <ul
               rol="tablist"
@@ -239,11 +218,10 @@ const Todos = () => {
               {tableItems.map((item, idx) => (
                 <li
                   key={idx}
-                  className={`py-2 border-b-2 md:px-4 ${
-                    selectedItem == idx
-                      ? "border-indigo-600 text-indigo-600"
-                      : "border-white text-gray-500"
-                  }`}
+                  className={`py-2 border-b-2 md:px-4 ${selectedItem == idx
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-white text-gray-500"
+                    }`}
                 >
                   <button
                     role="tab"
@@ -264,7 +242,7 @@ const Todos = () => {
                 <Table.HeadCell>Created for</Table.HeadCell>
                 <Table.HeadCell>Due at</Table.HeadCell>
                 <Table.HeadCell>Days remaining</Table.HeadCell>
-                <Table.HeadCell>Active</Table.HeadCell>
+                <Table.HeadCell>Status</Table.HeadCell>
                 {user?.is_superuser && <Table.HeadCell>Actions</Table.HeadCell>}
                 <Table.HeadCell>
                   <span className="sr-only">Edit</span>
@@ -273,78 +251,36 @@ const Todos = () => {
               <Table.Body className="divide-y">
                 {selectedItem == 0
                   ? todos
-                      .filter((todo) => todo.created_for != null)
-                      .map((todo, key) => {
-                        return (
-                          <Table.Row
-                            key={key}
-                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                          >
-                            <Table.Cell>{todo.id}</Table.Cell>
-                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                              {todo.title.length > 12
-                                ? todo.title.substring(0, 12).concat("...")
-                                : todo.title}
-                            </Table.Cell>
-                            <Table.Cell>{todo.created_for}</Table.Cell>
-                            <Table.Cell>{todo.due_at}</Table.Cell>
-                            <Table.Cell>
-                              {getRemainingDays(todo.created_at, todo.due_at)}
-                            </Table.Cell>
-                            <Table.Cell>
-                              {todo.active ? "Active" : "Inactive"}
-                            </Table.Cell>
-                            {user?.is_superuser && (
-                              <Table.Cell>
-                                <Dropdown label="Action" color="gray">
-                                  <Link to={`/todos/update/${todo.id}`}>
-                                    <Dropdown.Item icon={AiOutlineEdit}>
-                                      Edit
-                                    </Dropdown.Item>
-                                  </Link>
-                                  <Dropdown.Item
-                                    icon={AiOutlineDelete}
-                                    onClick={() => {
-                                      handleTodoDelete(todo.id);
-                                    }}
-                                  >
-                                    Delete
-                                  </Dropdown.Item>
-                                </Dropdown>
-                              </Table.Cell>
-                            )}
-                          </Table.Row>
-                        );
-                      })
-                  : todos
-                      .filter((todo) => todo.created_for == null)
-                      .map((todo, key) => {
-                        return (
-                          <Table.Row
-                            key={key}
-                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                          >
-                            <Table.Cell>{todo.id}</Table.Cell>
-                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                              {todo.title.length > 12
-                                ? todo.title.substring(0, 12).concat("...")
-                                : todo.title}
-                            </Table.Cell>
-                            <Table.Cell>{todo.created_for}</Table.Cell>
-                            <Table.Cell>{todo.due_at}</Table.Cell>
-                            <Table.Cell>
-                              {getRemainingDays(todo.created_at, todo.due_at)}
-                            </Table.Cell>
-                            <Table.Cell>
-                              {todo.active ? "Active" : "Inactive"}
-                            </Table.Cell>
-                            <Table.Cell>
-                              <Dropdown label="Action" color="gray">
-                                <Link to={`/todos/update/${todo.id}`}>
-                                  <Dropdown.Item icon={AiOutlineEdit}>
-                                    Edit
-                                  </Dropdown.Item>
-                                </Link>
+                    .filter((todo) => todo.created_for != null)
+                    .map((todo, key) => {
+                      return (
+                        <Table.Row
+                          key={key}
+                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Table.Cell>{todo.id}</Table.Cell>
+                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                            {todo.title.length > 12
+                              ? todo.title.substring(0, 12).concat("...")
+                              : todo.title}
+                          </Table.Cell>
+                          <Table.Cell>{todo.created_for}</Table.Cell>
+                          <Table.Cell>{todo.due_at ? todo.due_at : "NOT SET"}</Table.Cell>
+                          <Table.Cell>
+                            {getRemainingDays(todo.created_at, todo.due_at)} Days
+                          </Table.Cell>
+                          <Table.Cell>
+                            {todo.status}
+                          </Table.Cell>
+
+                          <Table.Cell>
+                            <Dropdown label="Action" color="gray">
+                              <Link to={`/todos/update/${todo.id}`}>
+                                <Dropdown.Item icon={AiOutlineEdit}>
+                                  Edit
+                                </Dropdown.Item>
+                              </Link>
+                              {user?.is_superuser &&
                                 <Dropdown.Item
                                   icon={AiOutlineDelete}
                                   onClick={() => {
@@ -353,11 +289,55 @@ const Todos = () => {
                                 >
                                   Delete
                                 </Dropdown.Item>
-                              </Dropdown>
-                            </Table.Cell>
-                          </Table.Row>
-                        );
-                      })}
+                              }
+                            </Dropdown>
+                          </Table.Cell>
+
+                        </Table.Row>
+                      );
+                    })
+                  : todos
+                    .filter((todo) => todo.created_for == null)
+                    .map((todo, key) => {
+                      return (
+                        <Table.Row
+                          key={key}
+                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                        >
+                          <Table.Cell>{todo.id}</Table.Cell>
+                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                            {todo.title.length > 12
+                              ? todo.title.substring(0, 12).concat("...")
+                              : todo.title}
+                          </Table.Cell>
+                          <Table.Cell>{todo.created_for}</Table.Cell>
+                          <Table.Cell>{todo.due_at ? todo.due_at : "NOT SET"}</Table.Cell>
+                          <Table.Cell>
+                            {getRemainingDays(todo.created_at, todo.due_at)}
+                          </Table.Cell>
+                          <Table.Cell>
+                            {todo.status}
+                          </Table.Cell>
+                          <Table.Cell>
+                            <Dropdown label="Action" color="gray">
+                              <Link to={`/todos/update/${todo.id}`}>
+                                <Dropdown.Item icon={AiOutlineEdit}>
+                                  Edit
+                                </Dropdown.Item>
+                              </Link>
+                              <Dropdown.Item
+                                icon={AiOutlineDelete}
+                                onClick={() => {
+                                  handleTodoDelete(todo.id);
+                                }}
+                              >
+                                Delete
+                              </Dropdown.Item>
+                            </Dropdown>
+                          </Table.Cell>
+                        </Table.Row>
+                      );
+                    })}
               </Table.Body>
             </Table>
           </div>

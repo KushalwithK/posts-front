@@ -5,7 +5,9 @@ import {
   CREATE_POST_ROUTE,
   UPDATE_POST_ROUTE,
 } from "../../extras/Routes";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppContext } from "../../AppContext";
 
 // NavLink component
 const NavLink = ({ ...props }) => {
@@ -60,6 +62,19 @@ const SectionsList = ({ items }) => {
 };
 
 const Sidebar = () => {
+
+  const navigate = useNavigate();
+
+  const { setIsAuthenticated } = useContext(AppContext)
+
+  const handleLogout = () => {
+    localStorage.removeItem('username')
+    localStorage.removeItem('password')
+
+    setIsAuthenticated(false)
+    navigate('/login')
+  }
+
   const lessons = {
     postsSection: [
       { name: "See all Posts", href: "/", accessibleBy: "Staff" },
@@ -89,6 +104,20 @@ const Sidebar = () => {
             <div>
               <Title>Posts</Title>
               <SectionsList items={lessons.todoListSection} />
+            </div>
+            <div>
+              <Title>Utils</Title>
+              <div className="text-gray-600 px-4 md:px-8">
+                <ul>
+                  <li
+                    onClick={handleLogout}
+                    active="text-gray-900 border-indigo-600"
+                    className="block w-full py-2 px-4 border-l hover:border-indigo-600 hover:text-gray-900 duration-150"
+                  >
+                    Logout
+                  </li>
+                </ul>
+              </div>
             </div>
           </>
         </div>

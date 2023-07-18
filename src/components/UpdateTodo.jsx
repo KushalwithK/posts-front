@@ -1,11 +1,11 @@
-import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_SINGLETON } from "../extras/Constant";
 import { FileInput, Label } from "flowbite-react";
 import { AppContext } from "../AppContext";
 
 const UpdateTodo = () => {
-  // const { validateUser } = useContext(AppContext);
+  const { user, users } = useContext(AppContext);
   const [todo, setTodo] = useState({});
   const [updatedData, setUpdatedData] = useState({});
   const { todoId } = useParams();
@@ -20,8 +20,8 @@ const UpdateTodo = () => {
 
   const handleTodoUpdate = (id) => {
     API_SINGLETON.post("/todos/update/" + id)
-      .then((result) => {})
-      .catch((error) => {});
+      .then((result) => { })
+      .catch((error) => { });
   };
 
   useEffect(() => {
@@ -32,11 +32,33 @@ const UpdateTodo = () => {
     <div className="w-full flex justify-center items-center">
       <form
         method="POST"
-        // encType="application/x-www-form-urlencoded"
-        // onSubmit={handleUpdatePost}
+      // encType="application/x-www-form-urlencoded"
+      // onSubmit={handleUpdatePost}
       >
         <div className="mt-10 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <p className="font-medium">Update a TODO</p>
+        </div>
+        <div className="mt-4 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="sm:col-span-4">
+            <label
+              for="todoTitle"
+              class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+            >
+              <span class="text-xs font-medium text-gray-700"> Title </span>
+
+              <input
+                type="text"
+                id="todoTitle"
+                placeholder="Ex. Developer's TODO"
+                class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+                defaultValue={todo.title}
+                onChange={(event) => {
+                  console.log(event.currentTarget.value);
+                  setTodo({ ...todo, title: event.currentTarget.value })
+                }}
+              />
+            </label>
+          </div>
         </div>
         <div className="mt-4 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
@@ -87,14 +109,18 @@ const UpdateTodo = () => {
                 Created For{" "}
               </span>
 
-              <input
-                type="text"
+              <select
                 id="created"
-                placeholder="Ex. John Smith"
-                defaultValue={"ONLY ACCESSIBLE TO ADMINS"}
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm disabled"
-                disabled
-              />
+                readOnly
+              >
+                {
+                  users.map((user) => {
+                    return <option selected={todo.created_for == user.username} value={user.username}>{user.first_name + " " + user.last_name}</option>
+                  })
+                }
+
+              </select>
             </label>
           </div>
         </div>
@@ -110,10 +136,11 @@ const UpdateTodo = () => {
               </span>
 
               <input
-                type="date"
+                type="text"
                 id="createdAt"
                 placeholder="Ex. 20-09-2002"
                 defaultValue={todo.created_at}
+                readOnly
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
               />
             </label>

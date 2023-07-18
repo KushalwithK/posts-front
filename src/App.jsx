@@ -3,6 +3,7 @@ import Posts from "./components/Posts";
 import CreatePost from "./components/CreatePost";
 import UpdatePost from "./components/UpdatePost";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import Todos from "./components/Todos";
 import UpdateTodo from "./components/UpdateTodo";
 import {
@@ -11,6 +12,7 @@ import {
   Routes,
   useNavigate,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 import { styled } from "styled-components";
 import SidebarItem from "./components/subComponents/SidebarItem";
@@ -19,20 +21,13 @@ import { API_SINGLETON } from "./extras/Constant";
 import { useCookies } from "react-cookie";
 import GuardedRoute from "./routing/GuardedRoute";
 
-const Layout = () => {
-  return (
-    <>
-      <SidebarItem />
-      <Outlet />
-    </>
-  );
-};
 const App = () => {
   const [user, setUser] = useState(null);
-
+  const [users, setUsers] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const validateUser = () => {
     if (localStorage.getItem("username") && localStorage.getItem("password")) {
@@ -45,6 +40,7 @@ const App = () => {
           if (response.data.status == "USER IS VALID") {
             setUser(response.data.user);
             setIsAuthenticated(true);
+            navigate('/')
           }
         })
         .catch((error) => {
@@ -55,14 +51,29 @@ const App = () => {
     }
   };
 
+  const getUsers = () => {
+    API_SINGLETON.get("/users", {
+      username: localStorage.getItem("username"),
+      password: localStorage.getItem("password"),
+    })
+      .then((response) => {
+        const users = response.data;
+        setUsers(users);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
     console.log(location.pathname);
     validateUser();
+    getUsers();
   }, []);
 
   return (
     <Main>
-      <AppContext.Provider value={{ user, setUser, validateUser }}>
+      <AppContext.Provider value={{ user, validateUser, users, setIsAuthenticated }}>
         <Routes>
           <Route
             element={
@@ -92,6 +103,7 @@ const App = () => {
             }
           >
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Route>
         </Routes>
       </AppContext.Provider>

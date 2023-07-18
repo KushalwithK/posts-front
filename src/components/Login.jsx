@@ -1,6 +1,6 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import { API_SINGLETON } from "../extras/Constant";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { data } from "autoprefixer";
 import { AppContext } from "../AppContext";
 import { useCookies } from "react-cookie";
@@ -15,6 +15,8 @@ const Login = () => {
     password: null,
   });
   const navigate = useNavigate();
+
+  const { validateUser } = useContext(AppContext)
 
   // const { user, setUser } = useContext(AppContext);
 
@@ -43,7 +45,8 @@ const Login = () => {
             console.log("User is valid!");
             localStorage.setItem("username", loginData.username);
             localStorage.setItem("password", loginData.password);
-            navigate("/");
+            validateUser()
+
           }
         })
         .catch((error) => {
@@ -77,15 +80,14 @@ const Login = () => {
           <div>
             <label className="font-medium">Username</label>
             <input
-              type="name"
+              type="text"
               name="username"
               placeholder="ex. John Dave"
               onChange={(e) => {
                 setLoginData({ ...loginData, username: e.currentTarget.value });
               }}
-              className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${
-                errors.username != null ? "border-red-500" : ""
-              } focus:border-indigo-600 shadow-sm rounded-lg`}
+              className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${errors.username != null ? "border-red-500" : ""
+                } focus:border-indigo-600 shadow-sm rounded-lg`}
             />
             {(loginData.username == "" || errors.username) && (
               <p className="text-red-500 mt-1">{errors.username}</p>
@@ -100,9 +102,8 @@ const Login = () => {
               onChange={(e) => {
                 setLoginData({ ...loginData, password: e.currentTarget.value });
               }}
-              className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${
-                errors.password != null ? "border-red-500" : ""
-              } focus:border-indigo-600 shadow-sm rounded-lg`}
+              className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${errors.password != null ? "border-red-500" : ""
+                } focus:border-indigo-600 shadow-sm rounded-lg`}
             />
             {(loginData.password == "" || errors.password) && (
               <p className="text-red-500 mt-1">{errors.password}</p>
@@ -115,6 +116,11 @@ const Login = () => {
             <a href="#" className="hover:text-indigo-600">
               Forgot password?
             </a>
+          </div>
+          <div className="text-center">
+            <p >
+              Don't have an account? <Link className="hover:text-indigo-600 hover:font-bold" to={'/register'}>Register</Link>
+            </p>
           </div>
         </form>
       </div>
