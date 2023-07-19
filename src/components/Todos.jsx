@@ -20,6 +20,8 @@ const Todos = () => {
 
   const [selectedUser, setSelectedUser] = useState("All");
 
+  const [page, setPage] = useState(1);
+
   const tableItems = [
     {
       label: "Assigned",
@@ -40,17 +42,21 @@ const Todos = () => {
   const contentRef = useRef();
   const dateRef = useRef();
 
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState({
+    data: []
+  });
 
-  const getTodos = (assigned = "All", date = "") => {
+  const getTodos = (assigned = "All", date = "", page_no = page) => {
     API_SINGLETON.get("/todos", {
       params: {
         username: localStorage.getItem("username"),
         password: localStorage.getItem("password"),
         assigned,
         date,
+        page_no: page_no
       },
     }).then((response) => {
+      console.log(response.data);
       const todos = response.data;
       setTodos(todos);
       dateRef.current.value = "";
@@ -101,12 +107,26 @@ const Todos = () => {
     if (event.key === "Enter") handleTodoAdd();
   };
 
+  const handlePaginatePrev = () => {
+    if (todos.hasPrevious) {
+      getTodos(selectedUser, date, page - 1);
+      setPage(page - 1)
+    }
+  }
+
+  const handlePaginateNext = () => {
+    if (todos.hasNext) {
+      getTodos(selectedUser, date, page + 1);
+      setPage(page + 1)
+    }
+  }
+
   const getRemainingDays = (created_at, due_at) => {
     const diff = Math.floor((Date.parse(due_at) - Date.parse(created_at)) / 86400000);
 
     // const DIF_IN_DAYS = dueDate.getDate - created.getDate;
 
-    return diff
+    return diff == NaN ? 0 : diff
   };
 
   return (
@@ -250,13 +270,13 @@ const Todos = () => {
               </Table.Head>
               <Table.Body className="divide-y">
                 {selectedItem == 0
-                  ? todos
+                  ? todos.data
                     .filter((todo) => todo.created_for != null)
                     .map((todo, key) => {
                       return (
                         <Table.Row
                           key={key}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                          className={`${getRemainingDays(todo.created_at, todo.due_at) >= 1 ? todo.status == "PENDING" ? "bg-blue-100" : "bg-green-100" : "bg-red-100"} dark:border-gray-700 dark:bg-gray-800 ${getRemainingDays(todo.created_at, todo.due_at) >= 1 ? todo.status == "PENDING" ? "hover:bg-blue-200" : "hover:bg-green-200" : "hover:bg-red-200"}`}
                         >
                           <Table.Cell>{todo.id}</Table.Cell>
                           <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
@@ -340,10 +360,20 @@ const Todos = () => {
                     })}
               </Table.Body>
             </Table>
+
           </div>
         </div>
       </div>
-    </div>
+      <div className="max-w-screen-xl mx-auto mt-12 px-4 text-gray-600 md:px-8">
+        <div className="flex items-center justify-between text-sm text-gray-600 font-medium">
+          <button onClick={handlePaginatePrev} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Previous</button>
+          <div>
+            Page {page} of {todos.totalPages}
+          </div>
+          <button onClick={handlePaginateNext} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Next</button>
+        </div>
+      </div>
+    </div >
   );
 };
 

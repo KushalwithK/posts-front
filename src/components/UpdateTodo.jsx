@@ -7,7 +7,6 @@ import { AppContext } from "../AppContext";
 const UpdateTodo = () => {
   const { user, users } = useContext(AppContext);
   const [todo, setTodo] = useState({});
-  const [updatedData, setUpdatedData] = useState({});
   const { todoId } = useParams();
 
   const navigate = useNavigate();
@@ -18,9 +17,23 @@ const UpdateTodo = () => {
     });
   };
 
-  const handleTodoUpdate = (id) => {
-    API_SINGLETON.post("/todos/update/" + id)
-      .then((result) => { })
+  const statuses = [
+    'PENDING',
+    'ACTIVE',
+    'COMPLETED'
+  ]
+
+  const handleTodoUpdate = (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    formData.append('username', localStorage.getItem('username'))
+    formData.append('password', localStorage.getItem('password'))
+    console.log(formData);
+    API_SINGLETON.post("/todos/" + todoId, formData)
+      .then((result) => {
+        console.log(result.data);
+        navigate('/todos/')
+      })
       .catch((error) => { });
   };
 
@@ -31,9 +44,7 @@ const UpdateTodo = () => {
   return (
     <div className="w-full flex justify-center items-center">
       <form
-        method="POST"
-      // encType="application/x-www-form-urlencoded"
-      // onSubmit={handleUpdatePost}
+        onSubmit={handleTodoUpdate}
       >
         <div className="mt-10 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <p className="font-medium">Update a TODO</p>
@@ -41,7 +52,7 @@ const UpdateTodo = () => {
         <div className="mt-4 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <label
-              for="todoTitle"
+              htmlFor="todoTitle"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
               <span class="text-xs font-medium text-gray-700"> Title </span>
@@ -49,12 +60,13 @@ const UpdateTodo = () => {
               <input
                 type="text"
                 id="todoTitle"
+                name="title"
                 placeholder="Ex. Developer's TODO"
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
                 defaultValue={todo.title}
                 onChange={(event) => {
-                  console.log(event.currentTarget.value);
                   setTodo({ ...todo, title: event.currentTarget.value })
+                  console.log(todo);
                 }}
               />
             </label>
@@ -63,13 +75,19 @@ const UpdateTodo = () => {
         <div className="mt-4 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <label
-              for="todoContent"
+              htmlFor="todoContent"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
               <span class="text-xs font-medium text-gray-700"> Content </span>
 
-              <input
+              <textarea
                 type="text"
+                name="content"
+                rows={4}
+                onChange={(event) => {
+                  setTodo({ ...todo, content: event.currentTarget.value })
+                  console.log(todo);
+                }}
                 id="todoContent"
                 placeholder="Ex. Very imp task"
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
@@ -81,7 +99,7 @@ const UpdateTodo = () => {
         <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-2 disabled">
             <label
-              for="createdBy"
+              htmlFor="createdBy"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
               <span class="text-xs font-medium text-gray-700">
@@ -101,7 +119,7 @@ const UpdateTodo = () => {
           </div>
           <div className="sm:col-span-2 disabled">
             <label
-              for="createdFor"
+              htmlFor="createdFor"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
               <span class="text-xs font-medium text-gray-700">
@@ -111,12 +129,18 @@ const UpdateTodo = () => {
 
               <select
                 id="created"
+                name="created_for"
+                onChange={(event) => {
+                  setTodo({ ...todo, created_for: event.currentTarget.value })
+                  console.log(todo);
+                }}
+                defaultValue={todo.created_for}
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm disabled"
-                readOnly
+
               >
                 {
                   users.map((user) => {
-                    return <option selected={todo.created_for == user.username} value={user.username}>{user.first_name + " " + user.last_name}</option>
+                    return <option value={user.username}>{user.first_name + " " + user.last_name}</option>
                   })
                 }
 
@@ -124,44 +148,64 @@ const UpdateTodo = () => {
             </label>
           </div>
         </div>
-        <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <div className="sm:col-span-2">
+        <div className="mt-5 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+          <div className="sm:col-span-2 disabled">
             <label
-              for="createdAt"
+              htmlFor="status"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
               <span class="text-xs font-medium text-gray-700">
                 {" "}
-                Created At{" "}
+                Status{" "}
               </span>
 
-              <input
-                type="text"
-                id="createdAt"
-                placeholder="Ex. 20-09-2002"
-                defaultValue={todo.created_at}
-                readOnly
+              <select
+                id="status"
+                name="status"
+                onChange={(event) => {
+                  setTodo({ ...todo, status: event.currentTarget.value })
+                  console.log(todo);
+                }}
+                defaultValue={todo.status}
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
-              />
-            </label>
-          </div>
-          <div className="sm:col-span-2">
-            <label
-              for="dueAt"
-              class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
-            >
-              <span class="text-xs font-medium text-gray-700"> Due at </span>
 
-              <input
-                type="date"
-                id="dueAt"
-                placeholder="Ex. 23-09-2002"
-                class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
-                defaultValue={todo.due_at}
-              />
+              >
+                {
+                  statuses.map((status) => {
+                    return <option value={status}>{status}</option>
+                  })
+                }
+              </select>
             </label>
           </div>
+
         </div>
+        {
+          user?.is_superuser &&
+          <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="dueAt"
+                class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+              >
+                <span class="text-xs font-medium text-gray-700"> Due at </span>
+
+                <input
+                  type="date"
+                  id="dueAt"
+                  name="due_at"
+                  placeholder="Ex. 23-09-2002"
+                  onChange={(event) => {
+                    setTodo({ ...todo, due_at: event.currentTarget.value })
+                    console.log(todo);
+                  }}
+                  class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+                  defaultValue={todo.due_at}
+                />
+              </label>
+            </div>
+          </div>
+        }
         <div className="mt-5 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <div id="fileUpload">
