@@ -43,7 +43,7 @@ const Todos = () => {
   const dateRef = useRef();
 
   const [todos, setTodos] = useState({
-    data: []
+    data: [],
   });
 
   const getTodos = (assigned = "All", date = "", page_no = page) => {
@@ -53,7 +53,7 @@ const Todos = () => {
         password: localStorage.getItem("password"),
         assigned,
         date,
-        page_no: page_no
+        page_no: page_no,
       },
     }).then((response) => {
       console.log(response.data);
@@ -110,23 +110,25 @@ const Todos = () => {
   const handlePaginatePrev = () => {
     if (todos.hasPrevious) {
       getTodos(selectedUser, date, page - 1);
-      setPage(page - 1)
+      setPage(page - 1);
     }
-  }
+  };
 
   const handlePaginateNext = () => {
     if (todos.hasNext) {
       getTodos(selectedUser, date, page + 1);
-      setPage(page + 1)
+      setPage(page + 1);
     }
-  }
+  };
 
   const getRemainingDays = (created_at, due_at) => {
-    const diff = Math.floor((Date.parse(due_at) - Date.parse(created_at)) / 86400000);
+    const diff = Math.floor(
+      (Date.parse(due_at) - Date.parse(created_at)) / 86400000
+    );
 
     // const DIF_IN_DAYS = dueDate.getDate - created.getDate;
 
-    return diff == NaN ? 0 : diff
+    return Number.isNaN(diff) ? 0 : diff;
   };
 
   return (
@@ -201,11 +203,13 @@ const Todos = () => {
             id="todoContentInput"
             onKeyDown={handleKeyDown}
             ref={contentRef}
-            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${todoTitle.title == "" ? "border-red-500" : "border-gray-300"
-              } rounded-lg bg-gray-50 ${todoTitle.title == ""
+            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${
+              todoTitle.title == "" ? "border-red-500" : "border-gray-300"
+            } rounded-lg bg-gray-50 ${
+              todoTitle.title == ""
                 ? "focus:ring-red-500 focus:border-red-500"
                 : "focus:ring-blue-500 focus:border-blue-500"
-              }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+            }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
             placeholder="Enter the TODO's title..."
             onChange={(event) => {
               setTodoTitle({
@@ -238,10 +242,11 @@ const Todos = () => {
               {tableItems.map((item, idx) => (
                 <li
                   key={idx}
-                  className={`py-2 border-b-2 md:px-4 ${selectedItem == idx
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-white text-gray-500"
-                    }`}
+                  className={`py-2 border-b-2 md:px-4 ${
+                    selectedItem == idx
+                      ? "border-indigo-600 text-indigo-600"
+                      : "border-white text-gray-500"
+                  }`}
                 >
                   <button
                     role="tab"
@@ -271,36 +276,98 @@ const Todos = () => {
               <Table.Body className="divide-y">
                 {selectedItem == 0
                   ? todos.data
-                    .filter((todo) => todo.created_for != null)
-                    .map((todo, key) => {
-                      return (
-                        <Table.Row
-                          key={key}
-                          className={`${getRemainingDays(todo.created_at, todo.due_at) >= 1 ? todo.status == "PENDING" ? "bg-blue-100" : "bg-green-100" : "bg-red-100"} dark:border-gray-700 dark:bg-gray-800 ${getRemainingDays(todo.created_at, todo.due_at) >= 1 ? todo.status == "PENDING" ? "hover:bg-blue-200" : "hover:bg-green-200" : "hover:bg-red-200"}`}
-                        >
-                          <Table.Cell>{todo.id}</Table.Cell>
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {todo.title.length > 12
-                              ? todo.title.substring(0, 12).concat("...")
-                              : todo.title}
-                          </Table.Cell>
-                          <Table.Cell>{todo.created_for}</Table.Cell>
-                          <Table.Cell>{todo.due_at ? todo.due_at : "NOT SET"}</Table.Cell>
-                          <Table.Cell>
-                            {getRemainingDays(todo.created_at, todo.due_at)} Days
-                          </Table.Cell>
-                          <Table.Cell>
-                            {todo.status}
-                          </Table.Cell>
+                      .filter((todo) => todo.created_for != null)
+                      .map((todo, key) => {
+                        return (
+                          <Table.Row
+                            key={key}
+                            className={`${
+                              todo.status != "PENDING"
+                                ? getRemainingDays(
+                                    todo.created_at,
+                                    todo.due_at
+                                  ) >= 1
+                                  ? "bg-green-300"
+                                  : "bg-red-300"
+                                : "bg-blue-300"
+                            } dark:border-gray-700 dark:bg-gray-800 ${
+                              todo.status != "PENDING"
+                                ? getRemainingDays(
+                                    todo.created_at,
+                                    todo.due_at
+                                  ) >= 1
+                                  ? "hover:bg-green-200"
+                                  : "hover:bg-red-200"
+                                : "hover:bg-blue-200"
+                            }`}
+                          >
+                            <Table.Cell>{todo.id}</Table.Cell>
+                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                              {todo.title.length > 12
+                                ? todo.title.substring(0, 12).concat("...")
+                                : todo.title}
+                            </Table.Cell>
+                            <Table.Cell>{todo.created_for}</Table.Cell>
+                            <Table.Cell>
+                              {todo.due_at ? todo.due_at : "NOT SET"}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {getRemainingDays(todo.created_at, todo.due_at)}{" "}
+                              Days
+                            </Table.Cell>
+                            <Table.Cell>{todo.status}</Table.Cell>
 
-                          <Table.Cell>
-                            <Dropdown label="Action" color="gray">
-                              <Link to={`/todos/update/${todo.id}`}>
-                                <Dropdown.Item icon={AiOutlineEdit}>
-                                  Edit
-                                </Dropdown.Item>
-                              </Link>
-                              {user?.is_superuser &&
+                            <Table.Cell>
+                              <Dropdown label="Action" color="gray">
+                                <Link to={`/todos/update/${todo.id}`}>
+                                  <Dropdown.Item icon={AiOutlineEdit}>
+                                    Edit
+                                  </Dropdown.Item>
+                                </Link>
+                                {user?.is_superuser && (
+                                  <Dropdown.Item
+                                    icon={AiOutlineDelete}
+                                    onClick={() => {
+                                      handleTodoDelete(todo.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </Dropdown.Item>
+                                )}
+                              </Dropdown>
+                            </Table.Cell>
+                          </Table.Row>
+                        );
+                      })
+                  : todos
+                      .filter((todo) => todo.created_for == null)
+                      .map((todo, key) => {
+                        return (
+                          <Table.Row
+                            key={key}
+                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                          >
+                            <Table.Cell>{todo.id}</Table.Cell>
+                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                              {todo.title.length > 12
+                                ? todo.title.substring(0, 12).concat("...")
+                                : todo.title}
+                            </Table.Cell>
+                            <Table.Cell>{todo.created_for}</Table.Cell>
+                            <Table.Cell>
+                              {todo.due_at ? todo.due_at : "NOT SET"}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {getRemainingDays(todo.created_at, todo.due_at)}
+                            </Table.Cell>
+                            <Table.Cell>{todo.status}</Table.Cell>
+                            <Table.Cell>
+                              <Dropdown label="Action" color="gray">
+                                <Link to={`/todos/update/${todo.id}`}>
+                                  <Dropdown.Item icon={AiOutlineEdit}>
+                                    Edit
+                                  </Dropdown.Item>
+                                </Link>
                                 <Dropdown.Item
                                   icon={AiOutlineDelete}
                                   onClick={() => {
@@ -309,71 +376,36 @@ const Todos = () => {
                                 >
                                   Delete
                                 </Dropdown.Item>
-                              }
-                            </Dropdown>
-                          </Table.Cell>
-
-                        </Table.Row>
-                      );
-                    })
-                  : todos
-                    .filter((todo) => todo.created_for == null)
-                    .map((todo, key) => {
-                      return (
-                        <Table.Row
-                          key={key}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                        >
-                          <Table.Cell>{todo.id}</Table.Cell>
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {todo.title.length > 12
-                              ? todo.title.substring(0, 12).concat("...")
-                              : todo.title}
-                          </Table.Cell>
-                          <Table.Cell>{todo.created_for}</Table.Cell>
-                          <Table.Cell>{todo.due_at ? todo.due_at : "NOT SET"}</Table.Cell>
-                          <Table.Cell>
-                            {getRemainingDays(todo.created_at, todo.due_at)}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {todo.status}
-                          </Table.Cell>
-                          <Table.Cell>
-                            <Dropdown label="Action" color="gray">
-                              <Link to={`/todos/update/${todo.id}`}>
-                                <Dropdown.Item icon={AiOutlineEdit}>
-                                  Edit
-                                </Dropdown.Item>
-                              </Link>
-                              <Dropdown.Item
-                                icon={AiOutlineDelete}
-                                onClick={() => {
-                                  handleTodoDelete(todo.id);
-                                }}
-                              >
-                                Delete
-                              </Dropdown.Item>
-                            </Dropdown>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })}
+                              </Dropdown>
+                            </Table.Cell>
+                          </Table.Row>
+                        );
+                      })}
               </Table.Body>
             </Table>
-
           </div>
         </div>
       </div>
       <div className="max-w-screen-xl mx-auto mt-12 px-4 text-gray-600 md:px-8">
         <div className="flex items-center justify-between text-sm text-gray-600 font-medium">
-          <button onClick={handlePaginatePrev} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Previous</button>
+          <button
+            onClick={handlePaginatePrev}
+            className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50"
+          >
+            Previous
+          </button>
           <div>
             Page {page} of {todos.totalPages}
           </div>
-          <button onClick={handlePaginateNext} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Next</button>
+          <button
+            onClick={handlePaginateNext}
+            className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50"
+          >
+            Next
+          </button>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 

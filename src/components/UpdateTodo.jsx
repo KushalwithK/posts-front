@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_SINGLETON } from "../extras/Constant";
 import { FileInput, Label } from "flowbite-react";
 import { AppContext } from "../AppContext";
+import moment from "moment";
 
 const UpdateTodo = () => {
   const { user, users } = useContext(AppContext);
@@ -17,24 +18,20 @@ const UpdateTodo = () => {
     });
   };
 
-  const statuses = [
-    'PENDING',
-    'ACTIVE',
-    'COMPLETED'
-  ]
+  const statuses = ["PENDING", "ACTIVE", "COMPLETED"];
 
   const handleTodoUpdate = (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    formData.append('username', localStorage.getItem('username'))
-    formData.append('password', localStorage.getItem('password'))
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    formData.append("username", localStorage.getItem("username"));
+    formData.append("password", localStorage.getItem("password"));
     console.log(formData);
     API_SINGLETON.post("/todos/" + todoId, formData)
       .then((result) => {
         console.log(result.data);
-        navigate('/todos/')
+        navigate("/todos/");
       })
-      .catch((error) => { });
+      .catch((error) => {});
   };
 
   useEffect(() => {
@@ -43,9 +40,7 @@ const UpdateTodo = () => {
 
   return (
     <div className="w-full flex justify-center items-center">
-      <form
-        onSubmit={handleTodoUpdate}
-      >
+      <form onSubmit={handleTodoUpdate}>
         <div className="mt-10 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <p className="font-medium">Update a TODO</p>
         </div>
@@ -65,7 +60,7 @@ const UpdateTodo = () => {
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
                 defaultValue={todo.title}
                 onChange={(event) => {
-                  setTodo({ ...todo, title: event.currentTarget.value })
+                  setTodo({ ...todo, title: event.currentTarget.value });
                   console.log(todo);
                 }}
               />
@@ -85,7 +80,7 @@ const UpdateTodo = () => {
                 name="content"
                 rows={4}
                 onChange={(event) => {
-                  setTodo({ ...todo, content: event.currentTarget.value })
+                  setTodo({ ...todo, content: event.currentTarget.value });
                   console.log(todo);
                 }}
                 id="todoContent"
@@ -131,19 +126,19 @@ const UpdateTodo = () => {
                 id="created"
                 name="created_for"
                 onChange={(event) => {
-                  setTodo({ ...todo, created_for: event.currentTarget.value })
+                  setTodo({ ...todo, created_for: event.currentTarget.value });
                   console.log(todo);
                 }}
-                defaultValue={todo.created_for}
+                value={todo.created_for}
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm disabled"
-
               >
-                {
-                  users.map((user) => {
-                    return <option value={user.username}>{user.first_name + " " + user.last_name}</option>
-                  })
-                }
-
+                {users
+                  // .filter((user) => !user.is_superuser)
+                  .map((user) => {
+                    return (
+                      <option value={user.username}>{user.username}</option>
+                    );
+                  })}
               </select>
             </label>
           </div>
@@ -154,68 +149,65 @@ const UpdateTodo = () => {
               htmlFor="status"
               class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
             >
-              <span class="text-xs font-medium text-gray-700">
-                {" "}
-                Status{" "}
-              </span>
+              <span class="text-xs font-medium text-gray-700"> Status </span>
 
               <select
                 id="status"
                 name="status"
                 onChange={(event) => {
-                  setTodo({ ...todo, status: event.currentTarget.value })
+                  setTodo({ ...todo, status: event.currentTarget.value });
                   console.log(todo);
                 }}
-                defaultValue={todo.status}
+                value={todo.status}
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
-
               >
-                {
-                  statuses.map((status) => {
-                    return <option value={status}>{status}</option>
-                  })
-                }
+                {statuses.map((status) => {
+                  return <option value={status}>{status}</option>;
+                })}
               </select>
             </label>
           </div>
+          {user?.is_superuser ||
+            (todo.due_at == null && (
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="dueAt"
+                  class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
+                >
+                  <span class="text-xs font-medium text-gray-700">
+                    {" "}
+                    Due at{" "}
+                  </span>
 
+                  <input
+                    type="date"
+                    excludeDates={[moment(), moment().subtract(1, "days")]}
+                    id="dueAt"
+                    name="due_at"
+                    placeholder="Ex. 23-09-2002"
+                    onChange={(event) => {
+                      setTodo({ ...todo, due_at: event.currentTarget.value });
+                      console.log(todo);
+                    }}
+                    class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
+                    defaultValue={todo.due_at}
+                  />
+                </label>
+              </div>
+            ))}
         </div>
-        {
-          user?.is_superuser &&
-          <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="dueAt"
-                class="block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600"
-              >
-                <span class="text-xs font-medium text-gray-700"> Due at </span>
 
-                <input
-                  type="date"
-                  id="dueAt"
-                  name="due_at"
-                  placeholder="Ex. 23-09-2002"
-                  onChange={(event) => {
-                    setTodo({ ...todo, due_at: event.currentTarget.value })
-                    console.log(todo);
-                  }}
-                  class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm"
-                  defaultValue={todo.due_at}
-                />
-              </label>
-            </div>
-          </div>
-        }
         <div className="mt-5 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
             <div id="fileUpload">
               <div className="mb-2 block">
-                <Label htmlFor="file" value="Upload file" disabled />
+                <Label htmlFor="file" value="Upload file" />
               </div>
               <FileInput
-                disabled
                 helperText="Note: Only upload a file if your would like to replace the current file"
                 id="file"
+                multiple
+                accept={["image/png", "image/jpg", "image/jpeg", "image/webp"]}
               />
             </div>
           </div>
