@@ -1,14 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_SINGLETON } from "../extras/Constant";
-import { FileInput, Label } from "flowbite-react";
 import { AppContext } from "../AppContext";
 import moment from "moment";
+import DropZone from "./subComponents/DropZone";
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
+
 
 const UpdateTodo = () => {
-  const { user, users } = useContext(AppContext);
+  const { user, users, decryptPassword } = useContext(AppContext);
   const [todo, setTodo] = useState({});
   const { todoId } = useParams();
+  const [images, setImages] = useState([]);
+
+  const [open, setOpen] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -22,16 +28,17 @@ const UpdateTodo = () => {
 
   const handleTodoUpdate = (e) => {
     e.preventDefault();
+    console.log(images);
     const formData = new FormData(e.target);
     formData.append("username", localStorage.getItem("username"));
-    formData.append("password", localStorage.getItem("password"));
+    formData.append("password", decryptPassword(localStorage.getItem("password")));
     console.log(formData);
     API_SINGLETON.post("/todos/" + todoId, formData)
       .then((result) => {
         console.log(result.data);
         navigate("/todos/");
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   useEffect(() => {
@@ -199,7 +206,7 @@ const UpdateTodo = () => {
 
         <div className="mt-5 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            <div id="fileUpload">
+            {/* <div id="fileUpload">
               <div className="mb-2 block">
                 <Label htmlFor="file" value="Upload file" />
               </div>
@@ -209,7 +216,8 @@ const UpdateTodo = () => {
                 multiple
                 accept={["image/png", "image/jpg", "image/jpeg", "image/webp"]}
               />
-            </div>
+            </div> */}
+            <DropZone images={images} setImages={setImages} />
           </div>
         </div>
         <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">

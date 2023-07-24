@@ -20,6 +20,8 @@ import { AppContext } from "./AppContext";
 import { API_SINGLETON } from "./extras/Constant";
 import { useCookies } from "react-cookie";
 import GuardedRoute from "./routing/GuardedRoute";
+import MyTodos from "./components/MyTodos";
+import CryptoJS from "crypto-js";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -29,12 +31,30 @@ const App = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const secretPass = "XkhZG4fW2t2W";
+
+  const encryptPassword = (plainPassword) => {
+    const data = CryptoJS.AES.encrypt(
+      plainPassword,
+      secretPass
+    ).toString();
+
+    localStorage.setItem('password', data)
+  }
+
+  const decryptPassword = (encryptedPassword) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretPass);
+    const data = bytes.toString(CryptoJS.enc.Utf8);
+
+    return data;
+  }
+
   const validateUser = () => {
     if (localStorage.getItem("username") && localStorage.getItem("password")) {
       setIsAuthenticated(true);
       const formData = new FormData();
       formData.append("username", localStorage.getItem("username"));
-      formData.append("password", localStorage.getItem("password"));
+      formData.append("password", decryptPassword(localStorage.getItem("password")));
       API_SINGLETON.post("/validateUser/", formData)
         .then((response) => {
           if (response.data.status == "USER IS VALID") {
@@ -73,7 +93,7 @@ const App = () => {
 
   return (
     <Main>
-      <AppContext.Provider value={{ user, validateUser, users, setIsAuthenticated }}>
+      <AppContext.Provider value={{ user, validateUser, users, setIsAuthenticated, decryptPassword, encryptPassword }}>
         <Routes>
           <Route
             element={
@@ -90,6 +110,7 @@ const App = () => {
 
             {/* Todos */}
             <Route path="/todos" element={<Todos />} />
+            <Route path="/todos/my" element={<MyTodos />} />
             <Route path="/todos/update/:todoId" element={<UpdateTodo />} />
           </Route>
 

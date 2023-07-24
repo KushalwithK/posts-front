@@ -82,6 +82,7 @@ const Sidebar = () => {
     ],
     todoListSection: [
       { name: "See all TODO's", href: "/todos/", accessibleBy: "Admin" },
+      { name: "My TODO's", href: "/todos/my", accessibleBy: "Admin" },
     ],
   };
 
@@ -112,7 +113,7 @@ const Sidebar = () => {
                   <li
                     onClick={handleLogout}
                     active="text-gray-900 border-indigo-600"
-                    className="block w-full py-2 px-4 border-l hover:border-indigo-600 hover:text-gray-900 duration-150"
+                    className="block w-full py-2 px-4 border-l hover:border-indigo-600 hover:text-gray-900 duration-150 cursor-pointer"
                   >
                     Logout
                   </li>

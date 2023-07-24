@@ -16,7 +16,7 @@ const Login = () => {
   });
   const navigate = useNavigate();
 
-  const { validateUser } = useContext(AppContext)
+  const { validateUser, encryptPassword } = useContext(AppContext)
 
   // const { user, setUser } = useContext(AppContext);
 
@@ -44,7 +44,8 @@ const Login = () => {
           if (response.data.status == "USER IS VALID") {
             console.log("User is valid!");
             localStorage.setItem("username", loginData.username);
-            localStorage.setItem("password", loginData.password);
+            encryptPassword(loginData.password)
+            // localStorage.setItem("password", loginData.password);
             validateUser()
 
           }

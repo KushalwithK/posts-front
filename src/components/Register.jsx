@@ -11,12 +11,14 @@ const Login = () => {
     const [registerData, setregisterData] = useState({
         firstName: "",
         lastName: "",
+        username: "",
         email: "",
         password: "",
     });
     const [errors, setErrors] = useState({
         firstName: null,
         lastName: null,
+        username: null,
         email: null,
         password: null,
     });
@@ -31,7 +33,7 @@ const Login = () => {
     const handleRegister = async (event) => {
 
         event.preventDefault();
-        if (registerData.password == "" || registerData.firstName == "" || registerData.lastName == "" || registerData.email == "") {
+        if (registerData.password == "" || registerData.firstName == "" || registerData.lastName == "" || registerData.username == "" || registerData.email == "") {
             setErrors({
                 ...errors,
                 firstName: "First Name cannot be empty!",
@@ -53,10 +55,11 @@ const Login = () => {
         else setErrors({ ...errors, password: null });
 
         console.log(registerData);
-        if (registerData.firstName != "" && registerData.lastName != "" && registerData.email != "" && registerData.password != "") {
+        if (registerData.firstName != "" && registerData.lastName != "" && registerData.email != "" && registerData.username != "" && registerData.password != "") {
             var formData = new FormData();
             formData.append("firstName", registerData.firstName);
             formData.append("lastName", registerData.lastName);
+            formData.append("username", registerData.username)
             formData.append("email", registerData.email);
             formData.append("rawPassword", registerData.password);
             API_SINGLETON.post("/register/", formData)
@@ -123,7 +126,7 @@ const Login = () => {
                         <label className="font-medium">Last Name <span className="text-red-500">*</span></label>
                         <input
                             type="text"
-                            name="username"
+                            name="lastName"
                             placeholder="ex. Dave"
                             onChange={(e) => {
                                 setregisterData({ ...registerData, lastName: e.currentTarget.value });
@@ -133,6 +136,22 @@ const Login = () => {
                         />
                         {(registerData.lastName == "" || errors.lastName) && (
                             <p className="text-red-500 mt-1">{errors.lastName}</p>
+                        )}
+                    </div>
+                    <div>
+                        <label className="font-medium">Username <span className="text-red-500">*</span></label>
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="ex. john_dave"
+                            onChange={(e) => {
+                                setregisterData({ ...registerData, username: e.currentTarget.value });
+                            }}
+                            className={`w-full mt-2 px-3 py-2 text-gray-500 bg-transparent outline-none border ${errors.username != null ? "border-red-500" : ""
+                                } focus:border-indigo-600 shadow-sm rounded-lg`}
+                        />
+                        {(registerData.username == "" || errors.username) && (
+                            <p className="text-red-500 mt-1">{errors.username}</p>
                         )}
                     </div>
                     <div>
