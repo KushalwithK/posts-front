@@ -20,7 +20,7 @@ const Todos = () => {
 
   const [selectedUser, setSelectedUser] = useState("All");
 
-  const [pages, setPages] = useState([])
+  const [pages, setPages] = useState([]);
   const [page, setPage] = useState(1);
 
   const tableItems = [
@@ -56,17 +56,17 @@ const Todos = () => {
       console.log(response.data);
       const todos = response.data;
       setTodos(todos);
-      const pages = []
+      const pages = [];
       for (let i = 1; i <= response.data.totalPages; i++) {
-        console.log(i)
+        console.log(i);
         if (i <= 3 || i > response.data.totalPages - 3) {
-          pages.push(i)
+          pages.push(i);
         }
         if (i == 4) {
-          pages.push('...')
+          pages.push("...");
         }
       }
-      setPages(pages)
+      setPages(pages);
       dateRef.current.value = "";
     });
   };
@@ -118,7 +118,7 @@ const Todos = () => {
   const handlePaginate = (page) => {
     getTodos(selectedUser, date, page);
     setPage(page);
-  }
+  };
 
   const handlePaginatePrev = () => {
     if (todos.hasPrevious) {
@@ -135,8 +135,7 @@ const Todos = () => {
   };
 
   const getRemainingDays = (created_at, due_at) => {
-
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date().toISOString().split("T")[0];
     const diff = Math.floor(
       (Date.parse(due_at) - Date.parse(today)) / 86400000
     );
@@ -153,7 +152,9 @@ const Todos = () => {
           <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
             {user?.is_superuser ? "TODO's for ADMIN" : "TODO's for Staff"}
           </h3>
-          <p className="text-gray-600 mt-2">List of all TODO's assigned to {user?.username}</p>
+          <p className="text-gray-600 mt-2">
+            List of all TODO's assigned to {user?.username}
+          </p>
         </div>
         <div className="mt-3 md:mt-0">
           <div className="items-center justify-between flex gap-4">
@@ -218,11 +219,13 @@ const Todos = () => {
             id="todoContentInput"
             onKeyDown={handleKeyDown}
             ref={contentRef}
-            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${todoTitle.title == "" ? "border-red-500" : "border-gray-300"
-              } rounded-lg bg-gray-50 ${todoTitle.title == ""
+            className={`block w-full p-4 pl-10 text-sm text-gray-900 border ${
+              todoTitle.title == "" ? "border-red-500" : "border-gray-300"
+            } rounded-lg bg-gray-50 ${
+              todoTitle.title == ""
                 ? "focus:ring-red-500 focus:border-red-500"
                 : "focus:ring-blue-500 focus:border-blue-500"
-              }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
+            }  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500`}
             placeholder="Enter the TODO's title..."
             onChange={(event) => {
               setTodoTitle({
@@ -255,10 +258,11 @@ const Todos = () => {
               {tableItems.map((item, idx) => (
                 <li
                   key={idx}
-                  className={`py-2 border-b-2 md:px-4 ${selectedItem == idx
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-white text-gray-500"
-                    }`}
+                  className={`py-2 border-b-2 md:px-4 ${
+                    selectedItem == idx
+                      ? "border-indigo-600 text-indigo-600"
+                      : "border-white text-gray-500"
+                  }`}
                 >
                   <button
                     role="tab"
@@ -288,53 +292,103 @@ const Todos = () => {
               <Table.Body className="divide-y">
                 {selectedItem == 0
                   ? todos.data
-                    .filter((todo) => todo.created_for != null)
-                    .map((todo, key) => {
-                      return (
-                        <Table.Row
-                          key={key}
-                          className={`${todo.status != "PENDING"
-                            ? getRemainingDays(
-                              todo.created_at,
-                              todo.due_at
-                            ) >= 1
-                              ? "bg-green-100"
-                              : "bg-red-100"
-                            : "bg-blue-100"
-                            } dark:border-gray-700 dark:bg-gray-800 ${todo.status != "PENDING"
-                              ? getRemainingDays(
-                                todo.created_at,
-                                todo.due_at
-                              ) >= 1
-                                ? "hover:bg-green-200"
-                                : "hover:bg-red-200"
-                              : "hover:bg-blue-200"
+                      .filter((todo) => todo.created_for != null)
+                      .map((todo, key) => {
+                        return (
+                          <Table.Row
+                            key={key}
+                            className={`${
+                              todo.status != "PENDING"
+                                ? getRemainingDays(
+                                    todo.created_at,
+                                    todo.due_at
+                                  ) >= 1
+                                  ? "bg-green-100"
+                                  : "bg-red-100"
+                                : "bg-blue-100"
+                            } dark:border-gray-700 dark:bg-gray-800 ${
+                              todo.status != "PENDING"
+                                ? getRemainingDays(
+                                    todo.created_at,
+                                    todo.due_at
+                                  ) >= 1
+                                  ? "hover:bg-green-200"
+                                  : "hover:bg-red-200"
+                                : "hover:bg-blue-200"
                             }`}
-                        >
-                          <Table.Cell>{todo.id}</Table.Cell>
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {todo.title.length > 12
-                              ? todo.title.substring(0, 12).concat("...")
-                              : todo.title}
-                          </Table.Cell>
-                          <Table.Cell>{todo.created_for}</Table.Cell>
-                          <Table.Cell>
-                            {todo.due_at ? todo.due_at : "NOT SET"}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {getRemainingDays(todo.created_at, todo.due_at)}{" "}
-                            Days
-                          </Table.Cell>
-                          <Table.Cell>{todo.status}</Table.Cell>
+                          >
+                            <Table.Cell>{todo.id}</Table.Cell>
+                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                              {todo.title.length > 12
+                                ? todo.title.substring(0, 12).concat("...")
+                                : todo.title}
+                            </Table.Cell>
+                            <Table.Cell>{todo.created_for}</Table.Cell>
+                            <Table.Cell>
+                              {todo.due_at ? todo.due_at : "NOT SET"}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {getRemainingDays(todo.created_at, todo.due_at) <=
+                              0
+                                ? "DATE PASSED"
+                                : getRemainingDays(
+                                    todo.created_at,
+                                    todo.due_at
+                                  ) + " Days"}
+                            </Table.Cell>
+                            <Table.Cell>{todo.status}</Table.Cell>
 
-                          <Table.Cell>
-                            <Dropdown label="Action" color="gray">
-                              <Link to={`/todos/update/${todo.id}`}>
-                                <Dropdown.Item icon={AiOutlineEdit}>
-                                  Edit
-                                </Dropdown.Item>
-                              </Link>
-                              {user?.is_superuser && (
+                            <Table.Cell>
+                              <Dropdown label="Action" color="gray">
+                                <Link to={`/todos/update/${todo.id}`}>
+                                  <Dropdown.Item icon={AiOutlineEdit}>
+                                    Edit
+                                  </Dropdown.Item>
+                                </Link>
+                                {user?.is_superuser && (
+                                  <Dropdown.Item
+                                    icon={AiOutlineDelete}
+                                    onClick={() => {
+                                      handleTodoDelete(todo.id);
+                                    }}
+                                  >
+                                    Delete
+                                  </Dropdown.Item>
+                                )}
+                              </Dropdown>
+                            </Table.Cell>
+                          </Table.Row>
+                        );
+                      })
+                  : todos.data
+                      .filter((todo) => todo.created_for == null)
+                      .map((todo, key) => {
+                        return (
+                          <Table.Row
+                            key={key}
+                            className="bg-white dark:border-gray-700 dark:bg-gray-800"
+                          >
+                            <Table.Cell>{todo.id}</Table.Cell>
+                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                              {todo.title.length > 12
+                                ? todo.title.substring(0, 12).concat("...")
+                                : todo.title}
+                            </Table.Cell>
+                            <Table.Cell>{todo.created_for}</Table.Cell>
+                            <Table.Cell>
+                              {todo.due_at ? todo.due_at : "NOT SET"}
+                            </Table.Cell>
+                            <Table.Cell>
+                              {getRemainingDays(todo.created_at, todo.due_at)}
+                            </Table.Cell>
+                            <Table.Cell>{todo.status}</Table.Cell>
+                            <Table.Cell>
+                              <Dropdown label="Action" color="gray">
+                                <Link to={`/todos/update/${todo.id}`}>
+                                  <Dropdown.Item icon={AiOutlineEdit}>
+                                    Edit
+                                  </Dropdown.Item>
+                                </Link>
                                 <Dropdown.Item
                                   icon={AiOutlineDelete}
                                   onClick={() => {
@@ -343,103 +397,98 @@ const Todos = () => {
                                 >
                                   Delete
                                 </Dropdown.Item>
-                              )}
-                            </Dropdown>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })
-                  : todos.data
-                    .filter((todo) => todo.created_for == null)
-                    .map((todo, key) => {
-                      return (
-                        <Table.Row
-                          key={key}
-                          className="bg-white dark:border-gray-700 dark:bg-gray-800"
-                        >
-                          <Table.Cell>{todo.id}</Table.Cell>
-                          <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                            {todo.title.length > 12
-                              ? todo.title.substring(0, 12).concat("...")
-                              : todo.title}
-                          </Table.Cell>
-                          <Table.Cell>{todo.created_for}</Table.Cell>
-                          <Table.Cell>
-                            {todo.due_at ? todo.due_at : "NOT SET"}
-                          </Table.Cell>
-                          <Table.Cell>
-                            {getRemainingDays(todo.created_at, todo.due_at)}
-                          </Table.Cell>
-                          <Table.Cell>{todo.status}</Table.Cell>
-                          <Table.Cell>
-                            <Dropdown label="Action" color="gray">
-                              <Link to={`/todos/update/${todo.id}`}>
-                                <Dropdown.Item icon={AiOutlineEdit}>
-                                  Edit
-                                </Dropdown.Item>
-                              </Link>
-                              <Dropdown.Item
-                                icon={AiOutlineDelete}
-                                onClick={() => {
-                                  handleTodoDelete(todo.id);
-                                }}
-                              >
-                                Delete
-                              </Dropdown.Item>
-                            </Dropdown>
-                          </Table.Cell>
-                        </Table.Row>
-                      );
-                    })}
+                              </Dropdown>
+                            </Table.Cell>
+                          </Table.Row>
+                        );
+                      })}
               </Table.Body>
             </Table>
           </div>
         </div>
       </div>
       <div className="max-w-screen-xl mx-auto mt-12 px-4 text-gray-600 md:px-8">
-        <div className="hidden items-center justify-between sm:flex" aria-label="Pagination">
-          <button onClick={handlePaginatePrev} className="hover:text-indigo-600 flex items-center gap-x-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path fillRule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clipRule="evenodd" />
+        <div
+          className="hidden items-center justify-between sm:flex"
+          aria-label="Pagination"
+        >
+          <button
+            onClick={handlePaginatePrev}
+            className="hover:text-indigo-600 flex items-center gap-x-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z"
+                clipRule="evenodd"
+              />
             </svg>
             Previous
           </button>
           <ul className="flex items-center gap-1">
-            {
-              pages.map((item, idx) => (
-                <li key={item} className="text-sm">
-                  {
-                    item == "..." ? (
-                      <div>
-                        {item}
-                      </div>
-                    ) : (
-
-                      <button onClick={() => {
-                        handlePaginate(item)
-                      }} aria-current={page == item ? "page" : false} className={`px-3 py-2 rounded-lg duration-150 hover:text-indigo-600 hover:bg-indigo-50 ${page == item ? "bg-indigo-50 text-indigo-600 font-medium" : ""}`}>
-                        {item}
-                      </button>
-                    )
-                  }
-                </li>
-              ))
-            }
+            {pages.map((item, idx) => (
+              <li key={item} className="text-sm">
+                {item == "..." ? (
+                  <div>{item}</div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      handlePaginate(item);
+                    }}
+                    aria-current={page == item ? "page" : false}
+                    className={`px-3 py-2 rounded-lg duration-150 hover:text-indigo-600 hover:bg-indigo-50 ${
+                      page == item
+                        ? "bg-indigo-50 text-indigo-600 font-medium"
+                        : ""
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )}
+              </li>
+            ))}
           </ul>
-          <button onClick={handlePaginateNext} className="hover:text-indigo-600 flex items-center gap-x-2">
+          <button
+            onClick={handlePaginateNext}
+            className="hover:text-indigo-600 flex items-center gap-x-2"
+          >
             Next
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-              <path fillRule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z"
+                clipRule="evenodd"
+              />
             </svg>
           </button>
         </div>
         {/* On mobile version */}
         <div className="flex items-center justify-between text-sm text-gray-600 font-medium sm:hidden">
-          <button onClick={handlePaginatePrev} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Previous</button>
+          <button
+            onClick={handlePaginatePrev}
+            className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50"
+          >
+            Previous
+          </button>
           <div className="font-medium">
             Page {page} of {pages.length}
           </div>
-          <button onClick={handlePaginateNext} className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50">Next</button>
+          <button
+            onClick={handlePaginateNext}
+            className="px-4 py-2 border rounded-lg duration-150 hover:bg-gray-50"
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

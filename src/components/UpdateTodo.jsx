@@ -7,7 +7,6 @@ import DropZone from "./subComponents/DropZone";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
-
 const UpdateTodo = () => {
   const { user, users, decryptPassword } = useContext(AppContext);
   const [todo, setTodo] = useState({});
@@ -31,14 +30,17 @@ const UpdateTodo = () => {
     console.log(images);
     const formData = new FormData(e.target);
     formData.append("username", localStorage.getItem("username"));
-    formData.append("password", decryptPassword(localStorage.getItem("password")));
+    formData.append(
+      "password",
+      decryptPassword(localStorage.getItem("password"))
+    );
     console.log(formData);
     API_SINGLETON.post("/todos/" + todoId, formData)
       .then((result) => {
         console.log(result.data);
         navigate("/todos/");
       })
-      .catch((error) => { });
+      .catch((error) => {});
   };
 
   useEffect(() => {
@@ -175,7 +177,7 @@ const UpdateTodo = () => {
             </label>
           </div>
           {user?.is_superuser ||
-            (todo.due_at == null && (
+            (todo.created_by == user?.username && (
               <div className="sm:col-span-2">
                 <label
                   htmlFor="dueAt"

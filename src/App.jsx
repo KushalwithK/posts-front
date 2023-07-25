@@ -34,33 +34,33 @@ const App = () => {
   const secretPass = "XkhZG4fW2t2W";
 
   const encryptPassword = (plainPassword) => {
-    const data = CryptoJS.AES.encrypt(
-      plainPassword,
-      secretPass
-    ).toString();
+    const data = CryptoJS.AES.encrypt(plainPassword, secretPass).toString();
 
-    localStorage.setItem('password', data)
-  }
+    localStorage.setItem("password", data);
+  };
 
   const decryptPassword = (encryptedPassword) => {
     const bytes = CryptoJS.AES.decrypt(encryptedPassword, secretPass);
     const data = bytes.toString(CryptoJS.enc.Utf8);
 
     return data;
-  }
+  };
 
   const validateUser = () => {
     if (localStorage.getItem("username") && localStorage.getItem("password")) {
       setIsAuthenticated(true);
       const formData = new FormData();
       formData.append("username", localStorage.getItem("username"));
-      formData.append("password", decryptPassword(localStorage.getItem("password")));
+      formData.append(
+        "password",
+        decryptPassword(localStorage.getItem("password"))
+      );
       API_SINGLETON.post("/validateUser/", formData)
         .then((response) => {
           if (response.data.status == "USER IS VALID") {
             setUser(response.data.user);
             setIsAuthenticated(true);
-            navigate('/')
+            navigate("/");
           }
         })
         .catch((error) => {
@@ -93,7 +93,16 @@ const App = () => {
 
   return (
     <Main>
-      <AppContext.Provider value={{ user, validateUser, users, setIsAuthenticated, decryptPassword, encryptPassword }}>
+      <AppContext.Provider
+        value={{
+          user,
+          validateUser,
+          users,
+          setIsAuthenticated,
+          decryptPassword,
+          encryptPassword,
+        }}
+      >
         <Routes>
           <Route
             element={
