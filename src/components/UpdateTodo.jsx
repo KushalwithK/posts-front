@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_SINGLETON } from "../extras/Constant";
+import { API_SINGLETON, MEDIA_URL } from "../extras/Constant";
 import { AppContext } from "../AppContext";
 import moment from "moment";
 import DropZone from "./subComponents/DropZone";
@@ -10,6 +10,7 @@ import "yet-another-react-lightbox/styles.css";
 const UpdateTodo = () => {
   const { user, users, decryptPassword } = useContext(AppContext);
   const [todo, setTodo] = useState({});
+  const [todoImages, setTodoImages] = useState([]);
   const { todoId } = useParams();
   const [images, setImages] = useState([]);
 
@@ -19,7 +20,14 @@ const UpdateTodo = () => {
 
   const getTodoUsingId = (id) => {
     API_SINGLETON.get("/todos/" + id).then((result) => {
-      setTodo(result.data);
+      setTodo(result.data.todo);
+      console.log(result.data.images);
+      setTodoImages(result.data.images)
+      const rawImages = result.data.images
+      rawImages.map((rawImage) => {
+        setImages(oldImages => [...oldImages, { preview: MEDIA_URL + rawImage.image }])
+      })
+      console.log(images);
     });
   };
 
@@ -27,20 +35,21 @@ const UpdateTodo = () => {
 
   const handleTodoUpdate = (e) => {
     e.preventDefault();
-    console.log(images);
     const formData = new FormData(e.target);
+    formData.append('images', images)
     formData.append("username", localStorage.getItem("username"));
     formData.append(
       "password",
       decryptPassword(localStorage.getItem("password"))
     );
-    console.log(formData);
+
     API_SINGLETON.post("/todos/" + todoId, formData)
       .then((result) => {
         console.log(result.data);
+        console.log(formData);
         navigate("/todos/");
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   useEffect(() => {
