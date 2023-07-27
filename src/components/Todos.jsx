@@ -20,10 +20,7 @@ const Todos = () => {
   const [date, setDate] = useState("");
 
   const [selectedUser, setSelectedUser] = useState("All");
-  const [timerInfo, setTimerInfo] = useState({
-    start: false,
-    timeElapsed: 0,
-  })
+  const [timerInfo, setTimerInfo] = useState([])
 
   const [pages, setPages] = useState([]);
   const [page, setPage] = useState(1);
@@ -61,6 +58,13 @@ const Todos = () => {
       console.log(response.data);
       const todos = response.data;
       setTodos(todos);
+      todos.data.map(todo => {
+        setTimerInfo(oldTimerInfo => [...oldTimerInfo, {
+          todo: todo.id,
+          start: false,
+          timeElapsed: todo.time_spent,
+        }])
+      })
       const pages = [];
       for (let i = 1; i <= response.data.totalPages; i++) {
         console.log(i);
@@ -342,7 +346,7 @@ const Todos = () => {
                           </Table.Cell>
                           <Table.Cell>{todo.status}</Table.Cell>
                           <Table.Cell>
-                            <TimerLabel timerInfo={timerInfo} setTimerInfo={setTimerInfo} />
+                            <TimerLabel timerInfo={timerInfo} setTimerInfo={setTimerInfo} currentTimerInfo={timerInfo.filter(info => info.todo == todo.id)[0]} />
                           </Table.Cell>
                           <Table.Cell>
                             <Dropdown label="Action" color="gray">
