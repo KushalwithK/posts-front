@@ -62,22 +62,21 @@ const SectionsList = ({ items }) => {
 };
 
 const Sidebar = () => {
-
   const navigate = useNavigate();
 
-  const { setIsAuthenticated } = useContext(AppContext)
+  const { setIsAuthenticated } = useContext(AppContext);
 
   const handleLogout = () => {
-    localStorage.removeItem('username')
-    localStorage.removeItem('password')
+    localStorage.removeItem("username");
+    localStorage.removeItem("password");
 
-    setIsAuthenticated(false)
-    navigate('/login')
-  }
+    setIsAuthenticated(false);
+    navigate("/login");
+  };
 
   const lessons = {
     postsSection: [
-      { name: "See all Posts", href: "/", accessibleBy: "Staff" },
+      { name: "See all Posts", href: "/form", accessibleBy: "Staff" },
       { name: "Create Post", href: "/posts/create", accessibleBy: "Staff" },
     ],
     todoListSection: [

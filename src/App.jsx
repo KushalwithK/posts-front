@@ -22,6 +22,7 @@ import { useCookies } from "react-cookie";
 import GuardedRoute from "./routing/GuardedRoute";
 import MyTodos from "./components/MyTodos";
 import CryptoJS from "crypto-js";
+import Form from "./components/Form";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -121,6 +122,9 @@ const App = () => {
             <Route path="/todos" element={<Todos />} />
             <Route path="/todos/my" element={<MyTodos />} />
             <Route path="/todos/update/:todoId" element={<UpdateTodo />} />
+
+            {/* Form */}
+            <Route path="/form" element={<Form />} />
           </Route>
 
           <Route
