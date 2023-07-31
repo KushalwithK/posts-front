@@ -6,6 +6,7 @@ import moment from "moment";
 import DropZone from "./subComponents/DropZone";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { FileInput, Label } from "flowbite-react";
 
 const UpdateTodo = () => {
   const { user, users, decryptPassword } = useContext(AppContext);
@@ -22,11 +23,14 @@ const UpdateTodo = () => {
     API_SINGLETON.get("/todos/" + id).then((result) => {
       setTodo(result.data.todo);
       console.log(result.data.images);
-      setTodoImages(result.data.images)
-      const rawImages = result.data.images
+      setTodoImages(result.data.images);
+      const rawImages = result.data.images;
       rawImages.map((rawImage) => {
-        setImages(oldImages => [...oldImages, { preview: MEDIA_URL + rawImage.image }])
-      })
+        setImages((oldImages) => [
+          ...oldImages,
+          { preview: MEDIA_URL + rawImage.image },
+        ]);
+      });
       console.log(images);
     });
   };
@@ -35,8 +39,9 @@ const UpdateTodo = () => {
 
   const handleTodoUpdate = (e) => {
     e.preventDefault();
+    console.log(e.target);
     const formData = new FormData(e.target);
-    formData.append('images', images)
+    // formData.append("images", images);
     formData.append("username", localStorage.getItem("username"));
     formData.append(
       "password",
@@ -49,7 +54,7 @@ const UpdateTodo = () => {
         console.log(formData);
         navigate("/todos/");
       })
-      .catch((error) => { });
+      .catch((error) => {});
   };
 
   useEffect(() => {
@@ -151,7 +156,7 @@ const UpdateTodo = () => {
                 class="mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm disabled"
               >
                 {users
-                  // .filter((user) => !user.is_superuser)
+                  .filter((user) => !user.is_superuser)
                   .map((user) => {
                     return (
                       <option value={user.username}>{user.username}</option>
@@ -217,18 +222,20 @@ const UpdateTodo = () => {
 
         <div className="mt-5 ml-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
           <div className="sm:col-span-4">
-            {/* <div id="fileUpload">
+            <div id="fileUpload">
               <div className="mb-2 block">
-                <Label htmlFor="file" value="Upload file" />
+                {/* <Label htmlFor="file" value="Upload file" /> */}
               </div>
               <FileInput
-                helperText="Note: Only upload a file if your would like to replace the current file"
+                helperText="Note: Only upload a file if your would like to replace the current one"
                 id="file"
                 multiple
+                name="images"
+                preview="TEST"
                 accept={["image/png", "image/jpg", "image/jpeg", "image/webp"]}
               />
-            </div> */}
-            <DropZone images={images} setImages={setImages} />
+            </div>
+            {/* <DropZone images={images} setImages={setImages} /> */}
           </div>
         </div>
         <div className="mt-5 ml-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-6">

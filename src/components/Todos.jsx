@@ -194,7 +194,7 @@ const Todos = () => {
                         key={key}
                         onClick={async () => {
                           setSelectedUser(user.username);
-                          getTodos(user.username, date);
+                          getTodos(user.username, date, 1);
                         }}
                       >
                         {user.username}
@@ -368,6 +368,7 @@ const Todos = () => {
                                     (info) => info.todo === todo.id
                                   )[0]
                                 }
+                                timerInfo={timerInfo}
                               />
                             </Table.Cell>
                             <Table.Cell>

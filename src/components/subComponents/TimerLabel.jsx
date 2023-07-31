@@ -7,14 +7,21 @@ import { styled } from "styled-components";
 import { API_SINGLETON } from "../../extras/Constant";
 import { AppContext } from "../../AppContext";
 import { useContext } from "react";
+import { ToastContainer, toast } from "react-toastify";
 
-const TimerLabel = ({ currentTimerInfo }) => {
+const TimerLabel = ({ currentTimerInfo, timerInfo }) => {
   const { decryptPassword } = useContext(AppContext);
   const [thisTimerInfo, setThisTimerInfo] = useState(currentTimerInfo);
   const [transformedTime, setTransformedTime] = useState(
     calculateTimeDuration(thisTimerInfo.timeElapsed)
   );
   const intervalRef = useRef();
+
+  useEffect(() => {
+    setThisTimerInfo(
+      currentTimerInfo ?? { start: false, timeElapsed: 0, timerId: 0, todo: 0 }
+    );
+  }, [timerInfo]);
 
   function calculateTimeDuration(seconds) {
     if (isNaN(seconds) || seconds < 0) {
@@ -51,7 +58,7 @@ const TimerLabel = ({ currentTimerInfo }) => {
       decryptPassword(localStorage.getItem("password"))
     );
     formData.append("time", timeElapsed);
-    API_SINGLETON.post(`/todos/${currentTimerInfo.todo}/spendTime`, formData);
+    API_SINGLETON.post(`/todos/${thisTimerInfo.todo}/spendTime`, formData);
   };
 
   const handleTimerStart = () => {
@@ -73,7 +80,7 @@ const TimerLabel = ({ currentTimerInfo }) => {
     }
   };
 
-  const handleTimerStop = () => {
+  const handleTimerStop = (unexpected = false) => {
     if (thisTimerInfo.start) {
       setThisTimerInfo((old) => {
         return {
@@ -83,6 +90,9 @@ const TimerLabel = ({ currentTimerInfo }) => {
       });
       clearInterval(intervalRef.current);
       storeTimeSpent(thisTimerInfo.timeElapsed);
+      if (unexpected) {
+        toast("Timer stopped unexpectedly!");
+      }
     }
   };
 
@@ -107,6 +117,18 @@ const TimerLabel = ({ currentTimerInfo }) => {
       } ${transformedTime.minutes > 0 ? transformedTime.minutes + "m" : ""} ${
         transformedTime.seconds
       }s`}</p>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </Main>
   );
 };
